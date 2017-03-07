@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.neastwest.imagesiphon.MainActivity">
+
+
+    <RelativeLayout
+        android:layout_width="395dp"
+        android:layout_height="284dp"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="9dp">
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="URLs:" />
+
+        <EditText
+            android:id="@+id/urls_to_download"
+            android:layout_width="match_parent"
+            android:layout_height="135sp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView1"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:maxLines="5" />
+
+        <Button
+            android:id="@+id/download_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/urls_to_download"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="19dp"
+            android:text="Download" />
+    </RelativeLayout>
+
+    <HorizontalScrollView
+        android:layout_width="395dp"
+        android:layout_height="287dp"
+        android:fillViewport="true"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="300dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </HorizontalScrollView>
+
+</android.support.constraint.ConstraintLayout>
