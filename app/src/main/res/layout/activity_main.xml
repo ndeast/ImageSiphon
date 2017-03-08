@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.neastwest.imagesiphon.MainActivity">
+    android:layout_height="match_parent">
 
 
     <RelativeLayout
-        android:layout_width="395dp"
-        android:layout_height="284dp"
+        android:id="@+id/relLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="300sp"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="9dp">
 
@@ -33,26 +34,35 @@
             android:maxLines="5" />
 
         <Button
-            android:id="@+id/download_button"
+            android:id="@+id/button6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/urls_to_download"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="19dp"
-            android:text="Download" />
+            android:onClick="onButtonClick"
+            android:text="Download"
+            tools:layout_editor_absoluteX="181dp"
+            tools:layout_editor_absoluteY="215dp" />
+
     </RelativeLayout>
 
     <HorizontalScrollView
+        android:id="@+id/scrollViewer"
         android:layout_width="395dp"
         android:layout_height="287dp"
         android:fillViewport="true"
         tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="300dp">
+        tools:layout_editor_absoluteY="300dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="9dp">
 
         <LinearLayout
+            android:id="@+id/results_region"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="vertical" />
+            android:orientation="horizontal" />
+
     </HorizontalScrollView>
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>
