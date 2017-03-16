@@ -73,14 +73,21 @@ public class MainActivity extends AppCompatActivity {
             return newImage;
         }
 
-            //Create a new image view and add it to results layout onPostExecute
-            protected void onPostExecute(Bitmap image) {
-                ImageView iv = new ImageView(MainActivity.this);
-                iv.setImageBitmap(image);
-                imagesLayout.addView(iv);
-            }
-
-
+        //Create a new image view and add it to results layout onPostExecute
+        protected void onPostExecute(Bitmap image) {
+            ImageView iv = new ImageView(MainActivity.this);
+            iv.setImageBitmap(image);
+            imagesLayout.addView(iv);
         }
 
+
     }
+
+}
+
+/*
+ * Need to add file reader and writer.
+ * load urls from file 0r EditText
+ * write to file a log of whats been downloaded previously?
+ * maybe add a URL validator.
+ */
