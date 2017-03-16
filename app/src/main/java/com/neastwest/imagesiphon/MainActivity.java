@@ -1,5 +1,6 @@
 package com.neastwest.imagesiphon;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.apache.commons.validator.routines.UrlValidator;
 
 import java.io.IOException;
 
@@ -41,53 +45,79 @@ public class MainActivity extends AppCompatActivity {
     protected void executeImages(String[] images) {
         Log.i("MESSAGE", "reached for loop");
 
-        //enhanced for loop to execute asynctask on each image in array
+        //enhanced for loop to execute AsyncTask on each image in array
+        //creating a new Wrapper object to pass the URL and the MainActivity Context
+        //Uses the apache UrlValidator library to determine if the entered URL is in
+        //the correct format to be stored as a URL object.
+        UrlValidator urlValidator = new UrlValidator();
         for (String image1: images) {
-            new ImageDownloader().execute(image1);
-            Log.i("MESSAGE", image1);
-        }
+            if(urlValidator.isValid(String.valueOf(image1))) {
+                Wrapper w = new Wrapper();
+                w.setString(image1);
+                new ImageDownloader().execute(w);
+                Log.i("MESSAGE", "assigned to object");
+            } else {
+                TextView newTxtView = new TextView(MainActivity.this);
+                newTxtView.setText("Invalid URL");
+                newTxtView.setPadding(5, 5, 5, 5);
+                imagesLayout.addView(newTxtView);
 
+            }
+        }
     }
 
-    //AsyncTask to download URL and return and assign a Bitmap to an ImageView
-    private class ImageDownloader extends AsyncTask <String, Void, Bitmap> {
-
+    //AsyncTask to check a URL and return a View.
+    //Returns an ImageView for a valid link and a TextView in case of errors.
+    private class ImageDownloader extends AsyncTask <Wrapper, Void, View> {
         private String newImageUrl = "";
+        Wrapper ww = new Wrapper();
 
-        protected Bitmap doInBackground(String... imagesURL) {
-
-            newImageUrl = imagesURL[0];
-
+        protected View doInBackground(Wrapper... imagesURL) {
+            ww = imagesURL[0];
             Log.i("MESSAGE", newImageUrl);
-            Bitmap newImage = null;
+            View w = null;
 
-            //send new image URL to retrieveImage function
+            //send new Wrapper object to viewCreator function
             try {
-                newImage = ImageSiphon.retrieveImage(newImageUrl);
+                w = ImageSiphon.viewCreator(ww);
                 Log.i("MESSAGE", "retreive Image worked?");
                 //Catch exception
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return newImage;
+            return w;
         }
 
-        //Create a new image view and add it to results layout onPostExecute
-        protected void onPostExecute(Bitmap image) {
-            ImageView iv = new ImageView(MainActivity.this);
-            iv.setImageBitmap(image);
-            imagesLayout.addView(iv);
+        //Add the View created in the doInBackground process - to the imagesLayout LL
+        protected void onPostExecute(View newView) {
+            imagesLayout.addView(newView);
         }
 
 
     }
 
+    //Wrapper class. This class holds the Context and URL variables. This was created in order
+    //to be able to pass multiple variables through an AsyncTask. Normally I would not have
+    //used an AsyncTask due to our need of passing multiple variables (context)
+    //however for the purposes of demoing threads, this started out to demo AsyncTask, and
+    //I just stuck with it. I would probably redo this with an ExecutorService.
+    public class Wrapper {
+        final Context context = MainActivity.this;
+        String imageName = "";
+
+        public void setString(String newName) {
+            imageName = newName;
+        }
+
+        public String getString() {
+            return imageName;
+        }
+
+        public Context getContext() {
+            return context;
+        }
+    }
+
 }
 
-/*
- * Need to add file reader and writer.
- * load urls from file 0r EditText
- * write to file a log of whats been downloaded previously?
- * maybe add a URL validator.
- */
