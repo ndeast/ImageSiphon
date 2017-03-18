@@ -1,14 +1,12 @@
 package com.neastwest.imagesiphon;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -36,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Progress bar settings
         progBar = (ProgressBar)findViewById(R.id.progressBar3);
-        progBar.setMax(10);
+        progBar.setMax(20);
     }
 
     //Clear button clears the image results from the LinearLayout
@@ -72,11 +70,8 @@ public class MainActivity extends AppCompatActivity {
                 new ImageDownloader().execute(w);
                 Log.i("MESSAGE", "assigned to object");
             } else {
-                TextView newTxtView = new TextView(MainActivity.this);
-                newTxtView.setText("Invalid URL");
-                newTxtView.setPadding(5, 5, 5, 5);
+                TextView newTxtView = (TextView) ImageSiphon.createErrorTextView(MainActivity.this);
                 imagesLayout.addView(newTxtView);
-
             }
         }
     }
@@ -106,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             return w;
         }
 
@@ -124,19 +118,17 @@ public class MainActivity extends AppCompatActivity {
     //used an AsyncTask due to our need of passing multiple variables (context)
     //however for the purposes of demoing threads, this started out to demo AsyncTask, and
     //I just stuck with it. I would probably redo this with an ExecutorService.
-    public class Wrapper {
+    class Wrapper {
         final Context context = MainActivity.this;
         String imageName = "";
 
         public void setString(String newName) {
             imageName = newName;
         }
-
         public String getString() {
             return imageName;
         }
-
-        public Context getContext() {
+        Context getContext() {
             return context;
         }
     }
