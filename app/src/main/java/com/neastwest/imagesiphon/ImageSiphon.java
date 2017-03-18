@@ -3,8 +3,10 @@ package com.neastwest.imagesiphon;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import java.io.IOException;
@@ -21,6 +23,7 @@ public class ImageSiphon {
         //Opens a URL connection
         HttpURLConnection urlConnection = (HttpURLConnection) newURL.openConnection();
         Bitmap image;
+        Bitmap thumb;
         InputStream newInputStream = null;
         try {
             //Attempts to send the input stream from the opened URL connection
@@ -34,7 +37,10 @@ public class ImageSiphon {
                 newInputStream.close();
             }
         }
-        return image;
+
+        thumb = createThumb(image);
+        image.recycle();
+        return thumb;
     }
 
     public static View viewCreator(MainActivity.Wrapper w) throws MalformedURLException, IOException {
@@ -83,5 +89,16 @@ public class ImageSiphon {
         //Return true if responseCode is 200
        return true;
     }
+    public static Bitmap createThumb(Bitmap image) {
+       // int dimension = getSquareCropDimensionForBitmap(image);
+        Bitmap bitmap = ThumbnailUtils.extractThumbnail(image, 750, 750);
+        image.recycle();
+        return bitmap;
 
+    }
+    public static int getSquareCropDimensionForBitmap(Bitmap bitmap)
+    {
+        //use the smallest dimension of the image to crop to
+        return Math.min(bitmap.getWidth(), bitmap.getHeight());
+    }
 }

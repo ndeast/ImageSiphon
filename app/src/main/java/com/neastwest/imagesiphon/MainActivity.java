@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.apache.commons.validator.routines.UrlValidator;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected LinearLayout imagesLayout;
     protected EditText urlTextBox;
+    protected ProgressBar progBar;
 
 
     @Override
@@ -30,6 +32,19 @@ public class MainActivity extends AppCompatActivity {
         //Assigning variables to views
         urlTextBox = (EditText) findViewById(R.id.urls_to_download);
         imagesLayout = (LinearLayout)findViewById(R.id.results_region);
+
+
+        //Progress bar settings
+        progBar = (ProgressBar)findViewById(R.id.progressBar3);
+        progBar.setMax(10);
+    }
+
+    //Clear button clears the image results from the LinearLayout
+    public void onClearButtonClick(View view) {
+        if(imagesLayout.getChildCount() > 0) {
+            imagesLayout.removeAllViews();
+            imagesLayout.invalidate();
+        }
     }
 
     public void onButtonClick (View view) {
@@ -72,6 +87,12 @@ public class MainActivity extends AppCompatActivity {
         private String newImageUrl = "";
         Wrapper ww = new Wrapper();
 
+        //PreExecute will start a progress bar
+        protected void onPreExecute() {
+            progBar.setVisibility(View.VISIBLE);
+            progBar.setProgress(0);
+        }
+
         protected View doInBackground(Wrapper... imagesURL) {
             ww = imagesURL[0];
             Log.i("MESSAGE", newImageUrl);
@@ -89,12 +110,13 @@ public class MainActivity extends AppCompatActivity {
             return w;
         }
 
-        //Add the View created in the doInBackground process - to the imagesLayout LL
+        //Post Execute will hide the progress bar and
+        //Add the View created in the doInBackground process
+        //to the imagesLayout LinearLayout
         protected void onPostExecute(View newView) {
             imagesLayout.addView(newView);
+            progBar.setVisibility(View.GONE);
         }
-
-
     }
 
     //Wrapper class. This class holds the Context and URL variables. This was created in order
