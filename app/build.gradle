@@ -27,6 +27,7 @@ dependencies {
     configurations {
         all*.exclude group: 'commons-logging', module: 'commons-logging'
     }
+    compile 'com.github.ishan1604:tsview:1.0.0'
     compile 'commons-validator:commons-validator:1.6'
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.1'
