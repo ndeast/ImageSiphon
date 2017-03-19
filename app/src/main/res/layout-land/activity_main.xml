@@ -15,85 +15,83 @@
         tools:layout_editor_absoluteY="9dp">
 
 
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onFileButtonClick"
-            android:text="Down File"
-            android:layout_alignBaseline="@+id/button6"
-            android:layout_alignBottom="@+id/button6"
-            android:layout_centerHorizontal="true" />
-
         <EditText
             android:id="@+id/urls_to_download"
-            android:layout_width="match_parent"
-            android:layout_height="135sp"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/textView1"
+            android:layout_width="330sp"
+            android:layout_height="200sp"
             android:layout_marginTop="8dp"
             android:ems="10"
-            android:textAlignment="center"
             android:hint="URLs go here..."
             android:inputType="textMultiLine"
-            android:maxLines="5" />
+            android:maxLines="5"
+            android:textAlignment="center"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/button6" />
 
         <Button
             android:id="@+id/button6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/clearBtn"
-            android:layout_alignBottom="@+id/clearBtn"
-            android:layout_marginEnd="22dp"
-            android:layout_toStartOf="@+id/button2"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="12dp"
             android:onClick="onButtonClick"
-            android:text="Down Urls"
+            android:text="Down URLs"
             tools:layout_editor_absoluteX="181dp"
             tools:layout_editor_absoluteY="215dp" />
+
+        <Button
+            android:id="@+id/fileButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onFileButtonClick"
+            android:text="Down File"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/button6"
+            android:layout_marginStart="15dp" />
 
         <Button
             android:id="@+id/clearBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/urls_to_download"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginBottom="47dp"
-            android:layout_marginEnd="52dp"
             android:onClick="onClearButtonClick"
-            android:text="CLEAR All" />
+            android:text="Clear All" />
 
     </RelativeLayout>
 
-    <HorizontalScrollView
-        android:id="@+id/scrollViewer"
-        android:layout_width="wrap_content"
-        android:layout_height="287dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="9dp"
+    <ScrollView
+        android:id="@+id/scrollViewer_land"
+        android:layout_width="330sp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="8dp"
         android:fillViewport="true"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="300dp">
 
         <LinearLayout
             android:id="@+id/results_region"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
         </LinearLayout>
 
 
-    </HorizontalScrollView>
+    </ScrollView>
 
     <ProgressBar
         android:id="@+id/progressBar3"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="112dp"
+        android:layout_marginBottom="51dp"
         android:visibility="invisible"
-        android:layout_alignBottom="@+id/scrollViewer"
-        android:layout_centerHorizontal="true" />
+        android:layout_above="@+id/scrollViewer_land"
+        android:layout_alignEnd="@+id/scrollViewer_land"
+        android:layout_marginEnd="123dp" />
 
 </RelativeLayout>

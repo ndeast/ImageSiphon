@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     //Wrapper class. This class holds the Context and URL variables. This was created in order
     //to be able to pass multiple variables through an AsyncTask. Normally I would not have
     //used an AsyncTask due to our need of passing multiple variables (context)

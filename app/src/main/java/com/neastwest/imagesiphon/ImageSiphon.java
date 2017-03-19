@@ -53,18 +53,13 @@ public class ImageSiphon {
         if (testURL(url)) {
             Log.d("MESSAGE", "good URL: ");
             newImage = retrieveImage(url);
-            ImageView newImgView = new ImageView(context);
-            newImgView.setImageBitmap(newImage);
-            newImgView.setPadding(5, 5, 5, 5);
-            return newImgView;
-            //Otherwise, if the response code is bad, create a
-            //TextView for an Invalid URL
+            View imgView = createImageView(newImage, context);
+            return imgView;
+            //Else return an error TextView
         } else {
             Log.d("MESSAGE", "bad URL: ");
-            TextView newTxtView = new TextView(context);
-            newTxtView.setText(R.string.error_text);
-            newTxtView.setPadding(5, 5, 5, 5);
-            return newTxtView;
+            View txtView = createErrorTextView(context);
+            return txtView;
         }
     }
     //Method to get the HTTP Response Code from a URL and return true if it is a 200
@@ -113,4 +108,10 @@ public class ImageSiphon {
         return newTxtView;
     }
 
+    public static View createImageView(Bitmap image, Context context) {
+        ImageView newImgView = new ImageView(context);
+        newImgView.setImageBitmap(image);
+        newImgView.setPadding(5, 5, 5, 5);
+        return newImgView;
+    }
 }
