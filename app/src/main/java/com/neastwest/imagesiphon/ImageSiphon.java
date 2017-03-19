@@ -25,6 +25,7 @@ public class ImageSiphon {
         Bitmap image;
         Bitmap thumb;
         InputStream newInputStream = null;
+
         try {
             //Attempts to send the input stream from the opened URL connection
             //and send it to the BitmapFactory stream decoder
@@ -69,12 +70,11 @@ public class ImageSiphon {
     //Method to get the HTTP Response Code from a URL and return true if it is a 200
     private static boolean testURL(URL url) throws IOException {
         Log.d("MESSAGE", "passed validator");
+        HttpURLConnection urlConnection = null;
             try {
                 //Open URLConnection and assign the HTTP Response code to int responseCode
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection = (HttpURLConnection) url.openConnection();
                 int responseCode = urlConnection.getResponseCode();
-                //Disconnect from url
-                urlConnection.disconnect();
                 if (responseCode != 200) {
                     return false;
                 }
@@ -84,7 +84,12 @@ public class ImageSiphon {
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
             }
+
         //Return true if responseCode is 200
        return true;
     }
