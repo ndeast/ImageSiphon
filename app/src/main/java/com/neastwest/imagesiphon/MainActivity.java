@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
     class Wrapper {
         final Context context = MainActivity.this;
         String imageName = "";
+        String packageName = getApplicationContext().getPackageName();
 
         public void setString(String newName) {
             imageName = newName;
@@ -138,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
         }
         Context getContext() {
             return context;
+        }
+        String getPackageName() {
+            return packageName;
         }
     }
 }
