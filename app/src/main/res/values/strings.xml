@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">ImageSiphon</string>
     <string name="error_text">Invalid URL</string>
+    <string name="clear_all">Clear All</string>
+    <string name="down_file">Down File</string>
+    <string name="down_urls">Down URLs</string>
+    <string name="urls_go_here">URLs go here...</string>
 </resources>

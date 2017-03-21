@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.validator.routines.UrlValidator;
 
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     protected LinearLayout imagesLayout;
     protected EditText urlTextBox;
     protected ProgressBar progBar;
+    protected String[] images;
 
 
     @Override
@@ -37,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
         progBar.setMax(20);
     }
 
+    public void onFileButtonClick(View view) {
+
+    }
+
     //Clear button clears the image results from the LinearLayout
     public void onClearButtonClick(View view) {
         if(imagesLayout.getChildCount() > 0) {
@@ -49,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("MESSAGE", "Button Clicked");
 
         //retrieving urls from text box, split by new line whitespace
-        String[] images = urlTextBox.getText().toString().split("\\s+");
+        images = urlTextBox.getText().toString().split("\\s+");
 
         //send the array of urls to execute
         executeImages(images);
@@ -113,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     //Wrapper class. This class holds the Context and URL variables. This was created in order
     //to be able to pass multiple variables through an AsyncTask. Normally I would not have
     //used an AsyncTask due to our need of passing multiple variables (context)
@@ -133,6 +138,5 @@ public class MainActivity extends AppCompatActivity {
             return context;
         }
     }
-
 }
 
