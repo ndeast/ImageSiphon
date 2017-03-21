@@ -40,7 +40,9 @@ public class ImageSiphon {
         }
 
         thumb = createThumb(image);
-        image.recycle();
+        if(image != null) {
+            image.recycle();
+        }
         return thumb;
     }
 
@@ -91,9 +93,10 @@ public class ImageSiphon {
     private static Bitmap createThumb(Bitmap image) {
        // int dimension = getSquareCropDimensionForBitmap(image);
         Bitmap bitmap = ThumbnailUtils.extractThumbnail(image, 750, 750);
-        image.recycle();
+        if(image != null) {
+            image.recycle();
+        }
         return bitmap;
-
     }
     public static int getSquareCropDimensionForBitmap(Bitmap bitmap)
     {
