@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             //send new Wrapper object to viewCreator function
             try {
                 dl = ImageSiphon.viewCreator(ww);
-                Log.i("MESSAGE", "retreive Image worked?");
+                Log.i("MESSAGE", "retrieve Image worked?");
                 //Catch exception
             } catch (IOException e) {
                 e.printStackTrace();
@@ -139,12 +139,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
+        //Saves thumbnailURIs ArrayList into a bundle
         savedInstanceState.putParcelableArrayList("KEY_URIS", thumbnailURIs);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        //Retrieves thumbnailURIs ArrayList and creates and displays an ImageView
+        //for each image in the ArrayList. This is called every time app is rotated
+        //or user switches apps
         ArrayList<Parcelable> uris = savedInstanceState.getParcelableArrayList("KEY_URIS");
         if(savedInstanceState != null) {
             for (Parcelable p: uris) {
@@ -159,11 +163,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //If user is force closing app, clear downloaded and displayed data
         if(isFinishing()) {
             clearALL();
         }
     }
 
+    //This method deletes all currently saved images, clears the Linear Layour displaying results
+    //and resets the counters for how many images have been downloaded.
     public void clearALL() {
         for (Uri u: thumbnailURIs) {
             File fileDelete = new File(u.getPath());
@@ -183,11 +190,8 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, "Cleared", Toast.LENGTH_SHORT).show();
     }
 
-    //Wrapper class. This class holds the Context and URL variables. This was created in order
-    //to be able to pass multiple variables through an AsyncTask. Normally I would not have
-    //used an AsyncTask due to our need of passing multiple variables (context)
-    //however for the purposes of demoing threads, this started out to demo AsyncTask, and
-    //I just stuck with it. I would probably redo this with an ExecutorService.
+    //Wrapper class. This object holds the Context and URL variables
+    //that get passed into the AsyncTask.
     class Wrapper {
         final Context context = MainActivity.this;
         String imageName = "";
@@ -206,6 +210,9 @@ public class MainActivity extends AppCompatActivity {
             return packageName;
         }
     }
+
+    //ImageDL class. This object holds a View, as well as a thumbnail URI and a Fullsized Image
+    //URI. This is what gets returned by the AsyncTask.
     static class ImageDL {
         Uri thumb;
         Uri fullSize;
