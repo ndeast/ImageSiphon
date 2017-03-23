@@ -3,6 +3,7 @@ package com.neastwest.imagesiphon;
 
 //Image to Storage feature branch
 import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
     //AsyncTask to check a URL and return a View.
     //Returns an ImageView for a valid link and a TextView in case of errors.
-    private class ImageDownloader extends AsyncTask <Wrapper, Void, View> {
+    private class ImageDownloader extends AsyncTask <Wrapper, Void, ImageDL> {
         private String newImageUrl = "";
         Wrapper ww = new Wrapper();
 
@@ -96,27 +97,27 @@ public class MainActivity extends AppCompatActivity {
             progBar.setProgress(0);
         }
 
-        protected View doInBackground(Wrapper... imagesURL) {
+        protected ImageDL doInBackground(Wrapper... imagesURL) {
             ww = imagesURL[0];
             Log.i("MESSAGE", newImageUrl);
-            View w = null;
+            ImageDL dl = new MainActivity.ImageDL();
 
             //send new Wrapper object to viewCreator function
             try {
-                w = ImageSiphon.viewCreator(ww);
+                dl = ImageSiphon.viewCreator(ww);
                 Log.i("MESSAGE", "retreive Image worked?");
                 //Catch exception
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return w;
+            return dl;
         }
 
         //Post Execute will hide the progress bar and
         //Add the View created in the doInBackground process
         //to the imagesLayout LinearLayout
-        protected void onPostExecute(View newView) {
-            imagesLayout.addView(newView);
+        protected void onPostExecute(ImageDL dl) {
+            imagesLayout.addView(dl.getView());
             progBar.setVisibility(View.GONE);
         }
     }
@@ -142,6 +143,39 @@ public class MainActivity extends AppCompatActivity {
         }
         String getPackageName() {
             return packageName;
+        }
+    }
+    static class ImageDL {
+        Uri thumb;
+        Uri fullSize;
+        View view;
+        boolean imgOrTxt;
+
+        public ImageDL(){}
+
+        void setThumb(Uri uri) {
+            thumb = uri;
+        }
+        void setFullSize(Uri uri) {
+            fullSize = uri;
+        }
+        void setView(View newView) {
+            view = newView;
+        }
+        void setImgOrTxt(boolean typeOfView) {
+            imgOrTxt = typeOfView;
+        }
+        Uri getThumb() {
+            return thumb;
+        }
+        Uri getFullSize() {
+            return fullSize;
+        }
+        View getView() {
+            return view;
+        }
+        boolean getImgOrText() {
+            return imgOrTxt;
         }
     }
 }
