@@ -4,16 +4,26 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.UUID;
+
+import static android.content.ContentValues.TAG;
 
 public class ImageSiphon {
 
@@ -46,22 +56,20 @@ public class ImageSiphon {
         return thumb;
     }
 
-    public static View viewCreator(MainActivity.Wrapper w) throws MalformedURLException, IOException {
+    public static MainActivity.ImageDL viewCreator(MainActivity.Wrapper w) throws IOException {
+        MainActivity.ImageDL dl = new MainActivity.ImageDL();
         Context context = w.getContext();
         URL url = new URL(w.getString());
         Bitmap newImage;
         //if the URL returns a good HTTP response code, retrieve the
         //image from the URL and then turn it into an ImageView
         if (testURL(url)) {
-            Log.d("MESSAGE", "good URL: ");
-            newImage = retrieveImage(url);
-            View imgView = createImageView(newImage, context);
-            return imgView;
+            dl = goodURL(url, context, dl);
+            return dl;
             //Else return an error TextView
         } else {
-            Log.d("MESSAGE", "bad URL: ");
-            View txtView = createErrorTextView(context);
-            return txtView;
+            dl = badURL(context, dl);
+            return dl;
         }
     }
     //Method to get the HTTP Response Code from a URL and return true if it is a 200
@@ -90,6 +98,29 @@ public class ImageSiphon {
         //Return true if responseCode is 200
        return true;
     }
+    private static MainActivity.ImageDL badURL(Context context, MainActivity.ImageDL dl) {
+        Log.d("MESSAGE", "bad URL: ");
+        View txtView = createErrorTextView(context);
+        dl.setView(txtView);
+        dl.setImgOrTxt(false);
+
+        return dl;
+    }
+
+    private static MainActivity.ImageDL goodURL(URL url, Context context, MainActivity.ImageDL dl)
+            throws IOException {
+        Bitmap newImage;
+        Log.d("MESSAGE", "good URL: ");
+        newImage = retrieveImage(url);
+        Log.d("MESSAGE", "calling save image function");
+        File newThumbFile = getOutputMediaFile(context);
+        dl.setThumb(Uri.fromFile(newThumbFile));
+        saveThumbToFile(newImage, context, newThumbFile);
+        View imgView = createImageView(newThumbFile, context);
+        dl.setView(imgView);
+
+        return dl;
+    }
     private static Bitmap createThumb(Bitmap image) {
        // int dimension = getSquareCropDimensionForBitmap(image);
         Bitmap bitmap = ThumbnailUtils.extractThumbnail(image, 750, 750);
@@ -111,10 +142,66 @@ public class ImageSiphon {
         return newTxtView;
     }
 
-    public static View createImageView(Bitmap image, Context context) {
+    public static View createImageView(File image, Context context) {
+        Uri uri = Uri.fromFile(image);
         ImageView newImgView = new ImageView(context);
-        newImgView.setImageBitmap(image);
+        newImgView.setImageURI(uri);
         newImgView.setPadding(5, 5, 5, 5);
         return newImgView;
     }
+
+    public static View createImageViewURI(Uri uri, Context context) {
+        ImageView newImgView = new ImageView(context);
+        newImgView.setImageURI(uri);
+        newImgView.setPadding(5, 5, 5, 5);
+        return newImgView;
+    }
+
+    public static void saveThumbToFile(Bitmap image, Context context, File pictureFile) {
+        //File pictureFile = getOutputMediaFile(context);
+        if (pictureFile == null) {
+            Log.d(TAG,
+                    "Error creating media file, check storage permissions: ");// e.getMessage());
+            return;
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(pictureFile);
+            image.compress(Bitmap.CompressFormat.PNG, 90, fos);
+            fos.close();
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "File not found: " + e.getMessage());
+        } catch (IOException e) {
+            Log.d(TAG, "Error accessing file: " + e.getMessage());
+        }
+    }
+
+    /** Create a File for saving an image or video */
+    private static File getOutputMediaFile(Context context){
+        Log.d("MESSAGE", "reached output media file");
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+        File mediaStorageDir = new File(context.getFilesDir().getPath() + "/THUMBS/");
+        Log.d("MESSAGE", "saved storage dir");
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                Log.d("MESSAGE", "returning null on mediaStorageExists");
+                return null;
+            }
+        }
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US).format(new Date());
+        File mediaFile;
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String mImageName="MI_"+ timeStamp + uuid + ".jpg";
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
+        Log.d("MESSAGE", mediaFile.getPath());
+        return mediaFile;
+    }
+
+
+
 }
