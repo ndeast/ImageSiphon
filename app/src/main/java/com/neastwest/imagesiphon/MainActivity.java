@@ -5,6 +5,7 @@ package com.neastwest.imagesiphon;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +18,12 @@ import android.widget.Toast;
 
 import org.apache.commons.validator.routines.UrlValidator;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+
+import static java.lang.String.valueOf;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     protected EditText urlTextBox;
     protected ProgressBar progBar;
     protected String[] images;
+    ArrayList<Uri> thumbnailURIs = new ArrayList<Uri>();
 
 
     @Override
@@ -49,8 +56,7 @@ public class MainActivity extends AppCompatActivity {
     //Clear button clears the image results from the LinearLayout
     public void onClearButtonClick(View view) {
         if(imagesLayout.getChildCount() > 0) {
-            imagesLayout.removeAllViews();
-            imagesLayout.invalidate();
+            clearALL();
         }
     }
 
@@ -73,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         //the correct format to be stored as a URL object.
         UrlValidator urlValidator = new UrlValidator();
         for (String image1: images) {
-            if(urlValidator.isValid(String.valueOf(image1))) {
+            if(urlValidator.isValid(valueOf(image1))) {
                 Wrapper w = new Wrapper();
                 w.setString(image1);
                 new ImageDownloader().execute(w);
@@ -118,8 +124,50 @@ public class MainActivity extends AppCompatActivity {
         //to the imagesLayout LinearLayout
         protected void onPostExecute(ImageDL dl) {
             imagesLayout.addView(dl.getView());
+            thumbnailURIs.add(dl.getThumb());
+            Log.i("MESSAGE", valueOf(thumbnailURIs.size()));
+            Log.d("MESSAGE", dl.getThumb().toString());
             progBar.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putParcelableArrayList("KEY_URIS", thumbnailURIs);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        ArrayList<Parcelable> uris = savedInstanceState.getParcelableArrayList("KEY_URIS");
+        if(savedInstanceState != null) {
+            for (Parcelable p: uris) {
+                Uri uri = (Uri) p;
+                Log.d("MESSAGE", uri.toString());
+                thumbnailURIs.add(uri);
+                View tempImage = ImageSiphon.createImageViewURI(uri, MainActivity.this);
+                imagesLayout.addView(tempImage);
+            }
+        }
+    }
+
+    public void clearALL() {
+        for (Uri u: thumbnailURIs) {
+            File fileDelete = new File(u.getPath());
+            if (fileDelete.exists()) {
+                if (fileDelete.delete()) {
+                    Log.d("MESSAGE", "file deleted" + u.getPath());
+                } else {
+                    Log.d("MESSAGE", "file not deleted" + u.getPath());
+                }
+            }
+
+        }
+        thumbnailURIs.clear();
+        imagesLayout.removeAllViews();
+        imagesLayout.invalidate();
+        Toast.makeText(MainActivity.this, "Cleared", Toast.LENGTH_SHORT).show();
     }
 
     //Wrapper class. This class holds the Context and URL variables. This was created in order

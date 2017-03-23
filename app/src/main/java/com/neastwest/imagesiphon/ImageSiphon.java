@@ -21,6 +21,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 import static android.content.ContentValues.TAG;
 
@@ -149,6 +150,13 @@ public class ImageSiphon {
         return newImgView;
     }
 
+    public static View createImageViewURI(Uri uri, Context context) {
+        ImageView newImgView = new ImageView(context);
+        newImgView.setImageURI(uri);
+        newImgView.setPadding(5, 5, 5, 5);
+        return newImgView;
+    }
+
     public static void saveThumbToFile(Bitmap image, Context context, File pictureFile) {
         //File pictureFile = getOutputMediaFile(context);
         if (pictureFile == null) {
@@ -185,9 +193,10 @@ public class ImageSiphon {
             }
         }
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm", Locale.US).format(new Date());
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US).format(new Date());
         File mediaFile;
-        String mImageName="MI_"+ timeStamp +".jpg";
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String mImageName="MI_"+ timeStamp + uuid + ".jpg";
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
         Log.d("MESSAGE", mediaFile.getPath());
         return mediaFile;
