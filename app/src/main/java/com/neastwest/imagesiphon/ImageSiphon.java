@@ -98,6 +98,8 @@ public class ImageSiphon {
         //Return true if responseCode is 200
        return true;
     }
+
+    //Method to run if URL fails tests
     private static MainActivity.ImageDL badURL(Context context, MainActivity.ImageDL dl) {
         Log.d("MESSAGE", "bad URL: ");
         View txtView = createErrorTextView(context);
@@ -107,6 +109,7 @@ public class ImageSiphon {
         return dl;
     }
 
+    //Method to run if URL passes tests.
     private static MainActivity.ImageDL goodURL(URL url, Context context, MainActivity.ImageDL dl)
             throws IOException {
         Bitmap newImage;
@@ -135,6 +138,7 @@ public class ImageSiphon {
         return Math.min(bitmap.getWidth(), bitmap.getHeight());
     }
 
+    //Create and return TextView with error text
     public static View createErrorTextView(Context context) {
         TextView newTxtView = new TextView(context);
         newTxtView.setText(R.string.error_text);
@@ -142,6 +146,7 @@ public class ImageSiphon {
         return newTxtView;
     }
 
+    //create and return an ImageView from a File
     public static View createImageView(File image, Context context) {
         Uri uri = Uri.fromFile(image);
         ImageView newImgView = new ImageView(context);
@@ -150,6 +155,7 @@ public class ImageSiphon {
         return newImgView;
     }
 
+    //Create and return an ImageView from a URI
     public static View createImageViewURI(Uri uri, Context context) {
         ImageView newImgView = new ImageView(context);
         newImgView.setImageURI(uri);
@@ -157,8 +163,8 @@ public class ImageSiphon {
         return newImgView;
     }
 
+    //converts an thumbnail bitmap into a thumbnail File
     public static void saveThumbToFile(Bitmap image, Context context, File pictureFile) {
-        //File pictureFile = getOutputMediaFile(context);
         if (pictureFile == null) {
             Log.d(TAG,
                     "Error creating media file, check storage permissions: ");// e.getMessage());
@@ -178,13 +184,8 @@ public class ImageSiphon {
     /** Create a File for saving an image or video */
     private static File getOutputMediaFile(Context context){
         Log.d("MESSAGE", "reached output media file");
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
         File mediaStorageDir = new File(context.getFilesDir().getPath() + "/THUMBS/");
         Log.d("MESSAGE", "saved storage dir");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
         // Create the storage directory if it does not exist
         if (! mediaStorageDir.exists()){
             if (! mediaStorageDir.mkdirs()){
@@ -193,7 +194,7 @@ public class ImageSiphon {
             }
         }
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US).format(new Date());
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm", Locale.US).format(new Date());
         File mediaFile;
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         String mImageName="MI_"+ timeStamp + uuid + ".jpg";
@@ -201,7 +202,4 @@ public class ImageSiphon {
         Log.d("MESSAGE", mediaFile.getPath());
         return mediaFile;
     }
-
-
-
 }
