@@ -1,7 +1,5 @@
 package com.neastwest.imagesiphon;
 
-
-//Image to Storage feature branch
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -20,9 +18,9 @@ import org.apache.commons.validator.routines.UrlValidator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 
+import static android.view.View.GONE;
 import static java.lang.String.valueOf;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,7 +30,9 @@ public class MainActivity extends AppCompatActivity {
     protected ProgressBar progBar;
     protected String[] images;
     ArrayList<Uri> thumbnailURIs = new ArrayList<Uri>();
-
+    boolean doneLoop = false;
+    int totalLinks = 0;
+    int completedImages = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Progress bar settings
         progBar = (ProgressBar)findViewById(R.id.progressBar3);
-        progBar.setMax(20);
+        progBar.setMax(100);
     }
 
     public void onFileButtonClick(View view) {
@@ -68,6 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
         //send the array of urls to execute
         executeImages(images);
+
+        progBar.setVisibility(View.VISIBLE);
+        progBar.setProgress(0);
+
     }
 
     protected void executeImages(String[] images) {
@@ -80,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         UrlValidator urlValidator = new UrlValidator();
         for (String image1: images) {
             if(urlValidator.isValid(valueOf(image1))) {
+                totalLinks++;
                 Wrapper w = new Wrapper();
                 w.setString(image1);
                 new ImageDownloader().execute(w);
@@ -96,12 +101,6 @@ public class MainActivity extends AppCompatActivity {
     private class ImageDownloader extends AsyncTask <Wrapper, Void, ImageDL> {
         private String newImageUrl = "";
         Wrapper ww = new Wrapper();
-
-        //PreExecute will start a progress bar
-        protected void onPreExecute() {
-            progBar.setVisibility(View.VISIBLE);
-            progBar.setProgress(0);
-        }
 
         protected ImageDL doInBackground(Wrapper... imagesURL) {
             ww = imagesURL[0];
@@ -123,11 +122,17 @@ public class MainActivity extends AppCompatActivity {
         //Add the View created in the doInBackground process
         //to the imagesLayout LinearLayout
         protected void onPostExecute(ImageDL dl) {
+            completedImages++;
             imagesLayout.addView(dl.getView());
-            thumbnailURIs.add(dl.getThumb());
-            Log.i("MESSAGE", valueOf(thumbnailURIs.size()));
-            Log.d("MESSAGE", dl.getThumb().toString());
-            progBar.setVisibility(View.GONE);
+            if(dl.getThumb() != null) {
+                thumbnailURIs.add(dl.getThumb());
+                Log.i("MESSAGE", valueOf(thumbnailURIs.size()));
+                Log.d("MESSAGE", dl.getThumb().toString());
+                Log.d("MESSAGE", "totalLinks is: " + valueOf(totalLinks) + " completedImages is: " + valueOf(completedImages));
+            }
+            if (totalLinks == completedImages) {
+                progBar.setVisibility(GONE);
+            }
         }
     }
 
@@ -151,6 +156,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(isFinishing()) {
+            clearALL();
+        }
+    }
 
     public void clearALL() {
         for (Uri u: thumbnailURIs) {
@@ -162,11 +174,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MESSAGE", "file not deleted" + u.getPath());
                 }
             }
-
         }
         thumbnailURIs.clear();
         imagesLayout.removeAllViews();
         imagesLayout.invalidate();
+        completedImages = 0;
+        totalLinks = 0;
         Toast.makeText(MainActivity.this, "Cleared", Toast.LENGTH_SHORT).show();
     }
 
