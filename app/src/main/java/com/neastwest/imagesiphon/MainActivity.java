@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     protected ProgressBar progBar;
     protected String[] images;
     ArrayList<Uri> thumbnailURIs = new ArrayList<Uri>();
-    boolean doneLoop = false;
     int totalLinks = 0;
     int completedImages = 0;
 
@@ -43,14 +42,13 @@ public class MainActivity extends AppCompatActivity {
         urlTextBox = (EditText) findViewById(R.id.urls_to_download);
         imagesLayout = (LinearLayout)findViewById(R.id.results_region);
 
-
         //Progress bar settings
         progBar = (ProgressBar)findViewById(R.id.progressBar3);
         progBar.setMax(100);
     }
 
     public void onFileButtonClick(View view) {
-
+        new FileReader().execute();
     }
 
     //Clear button clears the image results from the LinearLayout
@@ -62,16 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void onButtonClick (View view) {
         Log.i("MESSAGE", "Button Clicked");
-
         //retrieving urls from text box, split by new line whitespace
         images = urlTextBox.getText().toString().split("\\s+");
-
-        //send the array of urls to execute
-        executeImages(images);
-
-        progBar.setVisibility(View.VISIBLE);
-        progBar.setProgress(0);
-
+        startDownloading(images);
     }
 
     protected void executeImages(String[] images) {
@@ -95,6 +86,26 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    private class FileReader extends AsyncTask <String[], Void, String[]> {
+
+        protected String[] doInBackground(String[]... StringArray) {
+            String[] newStringArray = new String[4];
+
+            try {
+                newStringArray = ImageSiphon.readFileToStringArray(MainActivity.this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return newStringArray;
+        }
+
+        protected void onPostExecute(String[] newStringArray) {
+            Log.d("MESSAGE", newStringArray[0]);
+            images = newStringArray;
+            startDownloading(images);
+        }
+    }
+
 
     //AsyncTask to check a URL and return a View.
     //Returns an ImageView for a valid link and a TextView in case of errors.
@@ -189,6 +200,15 @@ public class MainActivity extends AppCompatActivity {
         totalLinks = 0;
         Toast.makeText(MainActivity.this, "Cleared", Toast.LENGTH_SHORT).show();
     }
+
+    private void startDownloading(String[] images) {
+        //send the array of urls to execute
+        executeImages(images);
+
+        progBar.setVisibility(View.VISIBLE);
+        progBar.setProgress(0);
+    }
+
 
     //Wrapper class. This object holds the Context and URL variables
     //that get passed into the AsyncTask.

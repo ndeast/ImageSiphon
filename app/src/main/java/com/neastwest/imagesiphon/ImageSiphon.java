@@ -1,6 +1,7 @@
 package com.neastwest.imagesiphon;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
@@ -9,12 +10,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
+
+import javax.xml.datatype.Duration;
 
 import static android.content.ContentValues.TAG;
 
@@ -167,7 +173,7 @@ public class ImageSiphon {
     public static void saveThumbToFile(Bitmap image, Context context, File pictureFile) {
         if (pictureFile == null) {
             Log.d(TAG,
-                    "Error creating media file, check storage permissions: ");// e.getMessage());
+                    "Error creating media file, check storage permissions: ");
             return;
         }
         try {
@@ -201,5 +207,27 @@ public class ImageSiphon {
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
         Log.d("MESSAGE", mediaFile.getPath());
         return mediaFile;
+    }
+
+    /** Reads in strings from a text file*/
+    public static String[] readFileToStringArray(Context context) throws IOException {
+        String[] urlArray = new String[4];
+        BufferedReader br = new BufferedReader(new
+                InputStreamReader(context.getAssets().open("links.txt")));
+        try {
+            String mLine = br.readLine();
+            while (mLine != null) {
+                for(int i=0;i<4;i++) {
+                    urlArray[i] = mLine;
+                    mLine = br.readLine();
+                }
+            }
+        } catch (IOException e) {
+            Log.d("MESSAGE", e.toString());
+            Toast.makeText(context, "Could not open file", Toast.LENGTH_SHORT).show();
+        } finally {
+            br.close();
+        }
+        return urlArray;
     }
 }
