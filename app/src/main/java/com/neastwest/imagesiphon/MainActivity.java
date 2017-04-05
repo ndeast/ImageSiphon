@@ -68,10 +68,11 @@ public class MainActivity extends AppCompatActivity {
     protected void executeImages(String[] images) {
         Log.i("MESSAGE", "reached for loop");
 
-        //enhanced for loop to execute AsyncTask on each image in array
-        //creating a new Wrapper object to pass the URL and the MainActivity Context
-        //Uses the apache UrlValidator library to determine if the entered URL is in
-        //the correct format to be stored as a URL object.
+        /* enhanced for loop to execute AsyncTask on each image in array
+         * creating a new Wrapper object to pass the URL and the MainActivity Context
+         * Uses the apache UrlValidator library to determine if the entered URL is in
+         * the correct format to be stored as a URL object.
+         */
         UrlValidator urlValidator = new UrlValidator();
         for (String image1: images) {
             if(urlValidator.isValid(valueOf(image1))) {
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             String[] newStringArray = new String[4];
 
             try {
-                newStringArray = ImageSiphon.readFileToStringArray(MainActivity.this);
+                newStringArray = FileSiphon.readFileToStringArray(MainActivity.this);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -108,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     //AsyncTask to check a URL and return a View.
-    //Returns an ImageView for a valid link and a TextView in case of errors.
     private class ImageDownloader extends AsyncTask <Wrapper, Void, ImageDL> {
         private String newImageUrl = "";
         Wrapper ww = new Wrapper();
@@ -129,9 +129,10 @@ public class MainActivity extends AppCompatActivity {
             return dl;
         }
 
-        //Post Execute will hide the progress bar and
-        //Add the View created in the doInBackground process
-        //to the imagesLayout LinearLayout
+        /* Compares counters, and disable progress bar if finished all images.
+         * Adds ImageView to the results LinearLayout, and the corresponding URI to the
+         * thumbnailURIs ArrayList.
+         */
         protected void onPostExecute(ImageDL dl) {
             completedImages++;
             imagesLayout.addView(dl.getView());
@@ -139,7 +140,8 @@ public class MainActivity extends AppCompatActivity {
                 thumbnailURIs.add(dl.getThumb());
                 Log.i("MESSAGE", valueOf(thumbnailURIs.size()));
                 Log.d("MESSAGE", dl.getThumb().toString());
-                Log.d("MESSAGE", "totalLinks is: " + valueOf(totalLinks) + " completedImages is: " + valueOf(completedImages));
+                Log.d("MESSAGE", "totalLinks is: " + valueOf(totalLinks) + " completedImages is: "
+                        + valueOf(completedImages));
             }
             if (totalLinks == completedImages) {
                 progBar.setVisibility(GONE);
@@ -150,23 +152,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        //Saves thumbnailURIs ArrayList into a bundle
+        //Save thumbnailURIs ArrayList into a bundle
         savedInstanceState.putParcelableArrayList("KEY_URIS", thumbnailURIs);
+
+
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        //Retrieves thumbnailURIs ArrayList and creates and displays an ImageView
-        //for each image in the ArrayList. This is called every time app is rotated
-        //or user switches apps
-        ArrayList<Parcelable> uris = savedInstanceState.getParcelableArrayList("KEY_URIS");
-        if(savedInstanceState != null) {
+        //Retrieve list of URIs from bundle. Re-add URIs to list and redisplay ImageViews
+        if(!savedInstanceState.isEmpty()) {
+            ArrayList<Parcelable> uris = savedInstanceState.getParcelableArrayList("KEY_URIS");
             for (Parcelable p: uris) {
                 Uri uri = (Uri) p;
                 Log.d("MESSAGE", uri.toString());
                 thumbnailURIs.add(uri);
-                View tempImage = ImageSiphon.createImageViewURI(uri, MainActivity.this);
+                View tempImage = ImageSiphon.createImageViewFromURI(uri, MainActivity.this);
                 imagesLayout.addView(tempImage);
             }
         }
@@ -180,8 +182,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //This method deletes all currently saved images, clears the Linear Layour displaying results
-    //and resets the counters for how many images have been downloaded.
+    /*
+     * Deletes currently saved images from storage.
+     * Clears the ImageViews/LinearLayouts.
+     * Resets counters for progress bar.
+     * Clears the entered Links in text box.
+     * Displays Toast Message on completion.
+     */
     public void clearALL() {
         for (Uri u: thumbnailURIs) {
             File fileDelete = new File(u.getPath());
@@ -198,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
         imagesLayout.invalidate();
         completedImages = 0;
         totalLinks = 0;
+        urlTextBox.setText("");
         Toast.makeText(MainActivity.this, "Cleared", Toast.LENGTH_SHORT).show();
     }
 
@@ -210,12 +218,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //Wrapper class. This object holds the Context and URL variables
-    //that get passed into the AsyncTask.
+    //Wrapper holds a link as a String, and the MainActivity Context
     class Wrapper {
         final Context context = MainActivity.this;
         String imageName = "";
-        String packageName = getApplicationContext().getPackageName();
 
         public void setString(String newName) {
             imageName = newName;
@@ -226,18 +232,13 @@ public class MainActivity extends AppCompatActivity {
         Context getContext() {
             return context;
         }
-        String getPackageName() {
-            return packageName;
-        }
     }
 
-    //ImageDL class. This object holds a View, as well as a thumbnail URI and a Fullsized Image
-    //URI. This is what gets returned by the AsyncTask.
+    //ImageDL holds thumbnail, full size image URIs, and a View (text or image)
     static class ImageDL {
         Uri thumb;
         Uri fullSize;
         View view;
-        boolean imgOrTxt;
 
         public ImageDL(){}
 
@@ -250,9 +251,6 @@ public class MainActivity extends AppCompatActivity {
         void setView(View newView) {
             view = newView;
         }
-        void setImgOrTxt(boolean typeOfView) {
-            imgOrTxt = typeOfView;
-        }
         Uri getThumb() {
             return thumb;
         }
@@ -261,9 +259,6 @@ public class MainActivity extends AppCompatActivity {
         }
         View getView() {
             return view;
-        }
-        boolean getImgOrText() {
-            return imgOrTxt;
         }
     }
 }
