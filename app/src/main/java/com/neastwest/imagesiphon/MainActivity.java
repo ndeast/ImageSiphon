@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Uri> thumbnailURIs = new ArrayList<Uri>();
     int totalLinks = 0;
     int completedImages = 0;
+    DatabaseHandler db = new DatabaseHandler(this);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
         //Progress bar settings
         progBar = (ProgressBar)findViewById(R.id.progressBar3);
         progBar.setMax(100);
+
     }
+
 
     public void onFileButtonClick(View view) {
         new FileReader().execute();
@@ -142,6 +146,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MESSAGE", dl.getThumb().toString());
                 Log.d("MESSAGE", "totalLinks is: " + valueOf(totalLinks) + " completedImages is: "
                         + valueOf(completedImages));
+
+                Downed downed = db.getDowned(1);
+                Log.d("dbTest", downed.getURL());
+                Log.d("dbTest", downed.getThumbnail());
             }
             if (totalLinks == completedImages) {
                 progBar.setVisibility(GONE);

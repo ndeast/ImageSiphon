@@ -90,6 +90,7 @@ public class ImageSiphon {
     //Good links get downloaded, a thumbnail generated, saved, and assigned to an ImageDL object
     private static MainActivity.ImageDL goodURL(URL url, Context context, MainActivity.ImageDL dl)
             throws IOException {
+        DatabaseHandler db = new DatabaseHandler(context);
         Bitmap newImage;
         Log.d("MESSAGE", "good URL: ");
         newImage = retrieveImage(url);
@@ -99,6 +100,7 @@ public class ImageSiphon {
         FileSiphon.saveThumbToFile(newImage, newThumbFile);
         View imgView = createImageViewFromFile(newThumbFile, context);
         dl.setView(imgView);
+        db.addDowned(new Downed(url.toString(), newThumbFile.toString()));
 
         return dl;
     }
