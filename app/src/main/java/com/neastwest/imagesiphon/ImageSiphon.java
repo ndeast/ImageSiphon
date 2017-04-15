@@ -44,17 +44,17 @@ public class ImageSiphon {
     }
 
     // Test the link, good URLs get turned into ImageViews, Bad links return an error TextView
-    public static MainActivity.ImageDL viewCreator(MainActivity.Wrapper w) throws IOException {
-        MainActivity.ImageDL dl = new MainActivity.ImageDL();
+    public static View viewCreator(MainActivity.Wrapper w) throws IOException {
         Context context = w.getContext();
         URL url = new URL(w.getString());
+        View view;
 
         if (testURL(url)) {
-            dl = goodURL(url, context, dl);
-            return dl;
+             view = goodURL(url, context);
+            return view;
         } else {
-            dl = badURL(context, dl);
-            return dl;
+            view = badURL(context);
+            return view;
         }
     }
 
@@ -81,30 +81,32 @@ public class ImageSiphon {
     }
 
     //Method to run if URL fails tests
-    private static MainActivity.ImageDL badURL(Context context, MainActivity.ImageDL dl) {
+    private static View badURL(Context context) {
         Log.d("MESSAGE", "bad URL: ");
         View txtView = createErrorTextView(context);
-        dl.setView(txtView);
 
-        return dl;
+        return txtView;
     }
 
     //Good links get downloaded, a thumbnail generated, saved, and assigned to an ImageDL object
-    private static MainActivity.ImageDL goodURL(URL url, Context context, MainActivity.ImageDL dl)
+    private static View goodURL(URL url, Context context)
             throws IOException {
+        Downed downed = new Downed();
         DatabaseHandler db = new DatabaseHandler(context);
         Bitmap newImage;
         Log.d("MESSAGE", "good URL: ");
         newImage = retrieveImage(url);
         Log.d("MESSAGE", "calling save image function");
         File newThumbFile = FileSiphon.getOutputMediaFile(context);
-        dl.setThumb(Uri.fromFile(newThumbFile));
         FileSiphon.saveThumbToFile(newImage, newThumbFile);
         View imgView = createImageViewFromFile(newThumbFile, context);
-        dl.setView(imgView);
-        db.addDowned(new Downed(url.toString(), newThumbFile.toString()));
 
-        return dl;
+        if(newThumbFile != null) {
+            downed.setThumbnail(newThumbFile.toString());
+            downed.setURL(url.toString());
+            db.addDowned(downed);
+        }
+        return imgView;
     }
     private static Bitmap createThumb(Bitmap image) {
         Bitmap bitmap = ThumbnailUtils.extractThumbnail(image, 750, 750);
