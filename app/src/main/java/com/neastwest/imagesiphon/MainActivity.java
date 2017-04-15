@@ -1,6 +1,7 @@
 package com.neastwest.imagesiphon;
 
 import android.content.Context;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -49,8 +50,9 @@ public class MainActivity extends AppCompatActivity {
         progBar = (ProgressBar)findViewById(R.id.progressBar3);
         progBar.setMax(100);
 
-    }
+        //downedList = db.getAllDowned();
 
+    }
 
     public void onFileButtonClick(View view) {
         new FileReader().execute();
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Clear button clears the image results from the LinearLayout
     public void onClearButtonClick(View view) {
-        if(imagesLayout.getChildCount() > 0) {
+        if(db.getDownedCount() > 0) {
             clearALL();
         }
     }
@@ -140,9 +142,12 @@ public class MainActivity extends AppCompatActivity {
          */
         protected void onPostExecute(View view) {
             completedImages++;
-            imagesLayout.addView(view);
+            View newView = ImageSiphon.createImageViewFromURI
+                    (Uri.parse(db.getDowned(completedImages).getThumbnail()), MainActivity.this);
+            imagesLayout.addView(newView);
 
             if(view != null) {
+
                 Downed downed = db.getDowned(1);
                 Log.d("dbTest", downed.getURL());
                 Log.d("dbTest", downed.getThumbnail());
@@ -195,16 +200,8 @@ public class MainActivity extends AppCompatActivity {
      * Displays Toast Message on completion.
      */
     public void clearALL() {
-        for (int i = 0; i < db.getDownedCount(); i++) {
-            File fileDelete = new File(downedList.get(i).getThumbnail());
-            if (fileDelete.exists()) {
-                if (fileDelete.delete()) {
-                    Log.d("MESSAGE", "file deleted" + downedList.get(i).getThumbnail());
-                } else {
-                    Log.d("MESSAGE", "file not deleted" + downedList.get(i).getThumbnail());
-                }
-            }
-        }
+        Log.d("MESSAGE", valueOf(db.getDownedCount()));
+        deleteStoredImages();
         db.deleteAll();
         imagesLayout.removeAllViews();
         imagesLayout.invalidate();
@@ -222,6 +219,20 @@ public class MainActivity extends AppCompatActivity {
         progBar.setProgress(0);
     }
 
+    private void deleteStoredImages() {
+        downedList = db.getAllDowned();
+        int count = db.getDownedCount();
+        for (int i = 0; i < count; i++) {
+            File fileDelete = new File(downedList.get(i).getThumbnail());
+            if (fileDelete.exists()) {
+                if (fileDelete.delete()) {
+                    Log.d("MESSAGE", "file deleted" + downedList.get(i).getThumbnail());
+                } else {
+                    Log.d("MESSAGE", "file not deleted" + downedList.get(i).getThumbnail());
+                }
+            }
+        }
+    }
 
     //Wrapper holds a link as a String, and the MainActivity Context
     class Wrapper {
@@ -239,32 +250,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //ImageDL holds thumbnail, full size image URIs, and a View (text or image)
-    static class ImageDL {
-        Uri thumb;
-        Uri fullSize;
-        View view;
-
-        public ImageDL(){}
-
-        void setThumb(Uri uri) {
-            thumb = uri;
-        }
-        void setFullSize(Uri uri) {
-            fullSize = uri;
-        }
-        void setView(View newView) {
-            view = newView;
-        }
-        Uri getThumb() {
-            return thumb;
-        }
-        Uri getFullSize() {
-            return fullSize;
-        }
-        View getView() {
-            return view;
-        }
-    }
 }
 
