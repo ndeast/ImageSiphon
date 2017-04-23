@@ -80,9 +80,7 @@ public class MainActivity extends AppCompatActivity {
         for (String image1: images) {
             if(urlValidator.isValid(valueOf(image1))) {
                 totalLinks++;
-                Wrapper w = new Wrapper();
-                w.setString(image1);
-                new ImageDownloader().execute(w);
+                new ImageDownloader().execute(image1);
                 Log.i("MESSAGE", "assigned to object");
             } else {
                 TextView newTxtView = (TextView) ImageSiphon.createErrorTextView(MainActivity.this);
@@ -112,12 +110,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //AsyncTask to check a URL and return a View.
-    private class ImageDownloader extends AsyncTask <Wrapper, Void, View> {
+    private class ImageDownloader extends AsyncTask <String, Void, View> {
         private String newImageUrl = "";
-        Wrapper ww = new Wrapper();
 
-        protected View doInBackground(Wrapper... imagesURL) {
-            ww = imagesURL[0];
+        protected View doInBackground(String... imagesURL) {
+            Wrapper ww = new Wrapper(imagesURL[0]);
             Log.i("MESSAGE", newImageUrl);
 
             //send new Wrapper object to viewCreator function
@@ -143,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
             imagesLayout.addView(newView);
 
             if(view != null) {
-
                 Downed downed = db.getDowned(1);
                 Log.d("dbTest", downed.getURL());
                 Log.d("dbTest", downed.getThumbnail());
@@ -157,8 +153,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        //Save thumbnailURIs ArrayList into a bundle
-        //savedInstanceState.putParcelableArrayList("KEY_URIS", thumbnailURIs);
         db.close();
     }
 
@@ -235,10 +229,10 @@ public class MainActivity extends AppCompatActivity {
         final Context context = MainActivity.this;
         String imageName = "";
 
-        public void setString(String newName) {
-            imageName = newName;
+        Wrapper(String url) {
+            this.imageName = url;
         }
-        public String getString() {
+        String getString() {
             return imageName;
         }
         Context getContext() {

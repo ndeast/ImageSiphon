@@ -63,19 +63,22 @@
     <ScrollView
         android:id="@+id/scrollViewer_land"
         android:layout_width="330sp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="8dp"
         android:fillViewport="true"
         tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="300dp">
+        tools:layout_editor_absoluteY="300dp"
+        android:overScrollMode="never"
+        android:adjustViewBounds="true">
 
         <LinearLayout
             android:id="@+id/results_region"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:adjustViewBounds="true">
 
         </LinearLayout>
 
@@ -87,10 +90,8 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="51dp"
         android:visibility="invisible"
-        android:layout_above="@+id/scrollViewer_land"
-        android:layout_alignEnd="@+id/scrollViewer_land"
-        android:layout_marginEnd="123dp" />
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/scrollViewer_land" />
 
 </RelativeLayout>
