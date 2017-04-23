@@ -3,7 +3,6 @@ package com.neastwest.imagesiphon;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +18,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.view.View.GONE;
 import static java.lang.String.valueOf;
@@ -29,11 +29,11 @@ public class MainActivity extends AppCompatActivity {
     protected EditText urlTextBox;
     protected ProgressBar progBar;
     protected String[] images;
-    ArrayList<Uri> thumbnailURIs = new ArrayList<Uri>();
-    int totalLinks = 0;
-    int completedImages = 0;
-    DatabaseHandler db = new DatabaseHandler(this);
-
+    private List<Downed> downedList = new ArrayList<>();
+    private int totalLinks = 0;
+    private int completedImages = 0;
+    private DatabaseHandler db = new DatabaseHandler(this);
+    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +50,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     public void onFileButtonClick(View view) {
         new FileReader().execute();
     }
 
     //Clear button clears the image results from the LinearLayout
     public void onClearButtonClick(View view) {
-        if(imagesLayout.getChildCount() > 0) {
+        if(db.getDownedCount() > 0) {
             clearALL();
         }
     }
@@ -81,9 +80,7 @@ public class MainActivity extends AppCompatActivity {
         for (String image1: images) {
             if(urlValidator.isValid(valueOf(image1))) {
                 totalLinks++;
-                Wrapper w = new Wrapper();
-                w.setString(image1);
-                new ImageDownloader().execute(w);
+                new ImageDownloader().execute(image1);
                 Log.i("MESSAGE", "assigned to object");
             } else {
                 TextView newTxtView = (TextView) ImageSiphon.createErrorTextView(MainActivity.this);
@@ -91,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     private class FileReader extends AsyncTask <String[], Void, String[]> {
 
         protected String[] doInBackground(String[]... StringArray) {
@@ -111,42 +109,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     //AsyncTask to check a URL and return a View.
-    private class ImageDownloader extends AsyncTask <Wrapper, Void, ImageDL> {
+    private class ImageDownloader extends AsyncTask <String, Void, View> {
         private String newImageUrl = "";
-        Wrapper ww = new Wrapper();
 
-        protected ImageDL doInBackground(Wrapper... imagesURL) {
-            ww = imagesURL[0];
+        protected View doInBackground(String... imagesURL) {
+            Wrapper ww = new Wrapper(imagesURL[0]);
             Log.i("MESSAGE", newImageUrl);
-            ImageDL dl = new MainActivity.ImageDL();
 
             //send new Wrapper object to viewCreator function
             try {
-                dl = ImageSiphon.viewCreator(ww);
+                view = ImageSiphon.viewCreator(ww);
                 Log.i("MESSAGE", "retrieve Image worked?");
                 //Catch exception
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return dl;
+
+            return view;
         }
 
         /* Compares counters, and disable progress bar if finished all images.
          * Adds ImageView to the results LinearLayout, and the corresponding URI to the
          * thumbnailURIs ArrayList.
          */
-        protected void onPostExecute(ImageDL dl) {
+        protected void onPostExecute(View view) {
             completedImages++;
-            imagesLayout.addView(dl.getView());
-            if(dl.getThumb() != null) {
-                thumbnailURIs.add(dl.getThumb());
-                Log.i("MESSAGE", valueOf(thumbnailURIs.size()));
-                Log.d("MESSAGE", dl.getThumb().toString());
-                Log.d("MESSAGE", "totalLinks is: " + valueOf(totalLinks) + " completedImages is: "
-                        + valueOf(completedImages));
+            View newView = ImageSiphon.createImageViewFromURI
+                    (Uri.parse(db.getDowned(completedImages).getThumbnail()), MainActivity.this);
+            imagesLayout.addView(newView);
 
+            if(view != null) {
                 Downed downed = db.getDowned(1);
                 Log.d("dbTest", downed.getURL());
                 Log.d("dbTest", downed.getThumbnail());
@@ -160,27 +153,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        //Save thumbnailURIs ArrayList into a bundle
-        savedInstanceState.putParcelableArrayList("KEY_URIS", thumbnailURIs);
-
-
+        db.close();
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         //Retrieve list of URIs from bundle. Re-add URIs to list and redisplay ImageViews
-        if(!savedInstanceState.isEmpty()) {
-            ArrayList<Parcelable> uris = savedInstanceState.getParcelableArrayList("KEY_URIS");
-            for (Parcelable p: uris) {
-                Uri uri = (Uri) p;
-                Log.d("MESSAGE", uri.toString());
-                thumbnailURIs.add(uri);
-                View tempImage = ImageSiphon.createImageViewFromURI(uri, MainActivity.this);
-                imagesLayout.addView(tempImage);
-            }
+        DatabaseHandler db = new DatabaseHandler(this);
+        downedList = db.getAllDowned();
+        int count = db.getDownedCount();
+        for (int i = 0; i < count; i++) {
+            Uri uri;
+            uri = Uri.parse(downedList.get(i).getThumbnail());
+            Log.d("MESSAGE", uri.toString());
+            View tempImage = ImageSiphon.createImageViewFromURI(uri, MainActivity.this);
+            imagesLayout.addView(tempImage);
+            db.close();
         }
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -198,17 +190,9 @@ public class MainActivity extends AppCompatActivity {
      * Displays Toast Message on completion.
      */
     public void clearALL() {
-        for (Uri u: thumbnailURIs) {
-            File fileDelete = new File(u.getPath());
-            if (fileDelete.exists()) {
-                if (fileDelete.delete()) {
-                    Log.d("MESSAGE", "file deleted" + u.getPath());
-                } else {
-                    Log.d("MESSAGE", "file not deleted" + u.getPath());
-                }
-            }
-        }
-        thumbnailURIs.clear();
+        Log.d("MESSAGE", valueOf(db.getDownedCount()));
+        deleteStoredImages();
+        db.deleteAll();
         imagesLayout.removeAllViews();
         imagesLayout.invalidate();
         completedImages = 0;
@@ -225,16 +209,30 @@ public class MainActivity extends AppCompatActivity {
         progBar.setProgress(0);
     }
 
+    private void deleteStoredImages() {
+        downedList = db.getAllDowned();
+        int count = db.getDownedCount();
+        for (int i = 0; i < count; i++) {
+            File fileDelete = new File(downedList.get(i).getThumbnail());
+            if (fileDelete.exists()) {
+                if (fileDelete.delete()) {
+                    Log.d("MESSAGE", "file deleted" + downedList.get(i).getThumbnail());
+                } else {
+                    Log.d("MESSAGE", "file not deleted" + downedList.get(i).getThumbnail());
+                }
+            }
+        }
+    }
 
     //Wrapper holds a link as a String, and the MainActivity Context
     class Wrapper {
         final Context context = MainActivity.this;
         String imageName = "";
 
-        public void setString(String newName) {
-            imageName = newName;
+        Wrapper(String url) {
+            this.imageName = url;
         }
-        public String getString() {
+        String getString() {
             return imageName;
         }
         Context getContext() {
@@ -242,32 +240,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //ImageDL holds thumbnail, full size image URIs, and a View (text or image)
-    static class ImageDL {
-        Uri thumb;
-        Uri fullSize;
-        View view;
-
-        public ImageDL(){}
-
-        void setThumb(Uri uri) {
-            thumb = uri;
-        }
-        void setFullSize(Uri uri) {
-            fullSize = uri;
-        }
-        void setView(View newView) {
-            view = newView;
-        }
-        Uri getThumb() {
-            return thumb;
-        }
-        Uri getFullSize() {
-            return fullSize;
-        }
-        View getView() {
-            return view;
-        }
-    }
 }
 

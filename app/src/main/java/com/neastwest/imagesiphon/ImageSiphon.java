@@ -16,10 +16,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class ImageSiphon {
+class ImageSiphon {
 
     //Downloads a Bitmap from a URL, and returns a thumbnail
-    public static Bitmap retrieveImage(URL newURL) throws IOException {
+    private static Bitmap retrieveImage(URL newURL) throws IOException {
         Bitmap image;
         Bitmap thumb;
         HttpURLConnection urlConnection = (HttpURLConnection) newURL.openConnection();
@@ -42,17 +42,17 @@ public class ImageSiphon {
     }
 
     // Test the link, good URLs get turned into ImageViews, Bad links return an error TextView
-    public static MainActivity.ImageDL viewCreator(MainActivity.Wrapper w) throws IOException {
-        MainActivity.ImageDL dl = new MainActivity.ImageDL();
+    static View viewCreator(MainActivity.Wrapper w) throws IOException {
         Context context = w.getContext();
         URL url = new URL(w.getString());
+        View view;
 
         if (testURL(url)) {
-            dl = goodURL(url, context, dl);
-            return dl;
+             view = goodURL(url, context);
+            return view;
         } else {
-            dl = badURL(context, dl);
-            return dl;
+            view = badURL(context);
+            return view;
         }
     }
 
@@ -79,16 +79,14 @@ public class ImageSiphon {
     }
 
     //Method to run if URL fails tests
-    private static MainActivity.ImageDL badURL(Context context, MainActivity.ImageDL dl) {
+    private static View badURL(Context context) {
         Log.d("MESSAGE", "bad URL: ");
-        View txtView = createErrorTextView(context);
-        dl.setView(txtView);
 
-        return dl;
+        return createErrorTextView(context);
     }
 
     //Good links get downloaded, a thumbnail generated, saved, and assigned to an ImageDL object
-    private static MainActivity.ImageDL goodURL(URL url, Context context, MainActivity.ImageDL dl)
+    private static View goodURL(URL url, Context context)
             throws IOException {
         DatabaseHandler db = new DatabaseHandler(context);
         Bitmap newImage;
@@ -96,29 +94,25 @@ public class ImageSiphon {
         newImage = retrieveImage(url);
         Log.d("MESSAGE", "calling save image function");
         File newThumbFile = FileSiphon.getOutputMediaFile(context);
-        dl.setThumb(Uri.fromFile(newThumbFile));
         FileSiphon.saveThumbToFile(newImage, newThumbFile);
         View imgView = createImageViewFromFile(newThumbFile, context);
-        dl.setView(imgView);
-        db.addDowned(new Downed(url.toString(), newThumbFile.toString()));
 
-        return dl;
+        if(newThumbFile != null) {
+            Downed downed = new Downed(url.toString(), newThumbFile.toString());
+            db.addDowned(downed);
+        }
+        return imgView;
     }
     private static Bitmap createThumb(Bitmap image) {
-        Bitmap bitmap = ThumbnailUtils.extractThumbnail(image, 750, 750);
+        Bitmap bitmap = ThumbnailUtils.extractThumbnail(image, 1500, 1500);
         if(image != null) {
             image.recycle();
         }
         return bitmap;
     }
-    public static int getSquareCropDimensionForBitmap(Bitmap bitmap)
-    {
-        //use the smallest dimension of the image to crop to
-        return Math.min(bitmap.getWidth(), bitmap.getHeight());
-    }
 
     //Create and return TextView with error text
-    public static View createErrorTextView(Context context) {
+     static View createErrorTextView(Context context) {
         TextView newTxtView = new TextView(context);
         newTxtView.setText(R.string.error_text);
         newTxtView.setPadding(5, 5, 5, 5);
@@ -126,18 +120,20 @@ public class ImageSiphon {
     }
 
     //create and return an ImageView from a File
-    public static View createImageViewFromFile(File image, Context context) {
+    private static View createImageViewFromFile(File image, Context context) {
         Uri uri = Uri.fromFile(image);
         ImageView newImgView = new ImageView(context);
         newImgView.setImageURI(uri);
+        newImgView.setAdjustViewBounds(true);
         newImgView.setPadding(5, 5, 5, 5);
         return newImgView;
     }
 
     //Create and return an ImageView from a URI
-    public static View createImageViewFromURI(Uri uri, Context context) {
+    static View createImageViewFromURI(Uri uri, Context context) {
         ImageView newImgView = new ImageView(context);
         newImgView.setImageURI(uri);
+        newImgView.setAdjustViewBounds(true);
         newImgView.setPadding(5, 5, 5, 5);
         return newImgView;
     }

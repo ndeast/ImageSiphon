@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseHandler extends SQLiteOpenHelper {
+class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static Variables
     // Database Version
@@ -28,7 +28,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_THUMB = "thumbnail";
     private static final String KEY_FULL = "full_size";
 
-    public DatabaseHandler(Context context) {
+    DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -82,12 +82,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Downed downed = new Downed(Integer.parseInt(cursor.getString(0)),
                 cursor.getString(1), cursor.getString(2));
 
+        cursor.close();
         return downed;
     }
 
     // Get All Downed
-    public List<Downed> getAllDowned() {
-        List<Downed> downedList = new ArrayList<Downed>();
+    List<Downed> getAllDowned() {
+        List<Downed> downedList = new ArrayList<>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_DOWNED;
 
@@ -97,50 +98,31 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // loop through all rows and add to list
         if (cursor.moveToFirst()) {
             do {
-                Downed downed = new Downed();
-                downed.setID(Integer.parseInt(cursor.getString(0)));
-                downed.setURL(cursor.getString(1));
-                downed.setThumbnail(cursor.getString(2));
+                Downed downed = new Downed(Integer.parseInt(cursor.getString(0)),
+                        cursor.getString(1), cursor.getString(2));
                 // Add downed to list
                 downedList.add(downed);
             } while (cursor.moveToNext());
         }
-
+        cursor.close();
         // return downed list
         return downedList;
     }
 
-    // Updating single contact
-    public int updateDowned(Downed downed) {
+    void deleteAll() {
         SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(KEY_URL, downed.getURL());
-        values.put(KEY_THUMB, downed.getThumbnail());
-
-        // updating row
-        return db.update(TABLE_DOWNED, values, KEY_ID + " = ?",
-                new String[] { String.valueOf(downed.getID()) });
+        db.delete(TABLE_DOWNED, null, null);
     }
-
-    // Deleting single contact
-    public void deleteDowned(Downed downed) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_DOWNED, KEY_ID + " = ?",
-                new String[] { String.valueOf(downed.getID()) });
-        db.close();
-    }
-
 
     // Getting contacts Count
-    public int getDownedCount() {
+    int getDownedCount() {
         String countQuery = "SELECT  * FROM " + TABLE_DOWNED;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
+        int count = cursor.getCount();
         cursor.close();
 
         // return count
-        return cursor.getCount();
+        return count;
     }
-
 }
