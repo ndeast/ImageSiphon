@@ -40,25 +40,23 @@
             android:id="@+id/button6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/clearBtn"
-            android:layout_alignBottom="@+id/clearBtn"
-            android:layout_marginEnd="22dp"
-            android:layout_toStartOf="@+id/button2"
             android:onClick="onButtonClick"
             android:text="@string/down_urls"
             tools:layout_editor_absoluteX="181dp"
-            tools:layout_editor_absoluteY="215dp" />
+            tools:layout_editor_absoluteY="215dp"
+            android:layout_alignBaseline="@+id/clearBtn"
+            android:layout_alignBottom="@+id/clearBtn"
+            android:layout_toStartOf="@+id/button2" />
 
         <Button
             android:id="@+id/clearBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginBottom="47dp"
-            android:layout_marginEnd="52dp"
+            android:layout_marginBottom="46dp"
             android:onClick="onClearButtonClick"
-            android:text="@string/clear_all" />
+            android:text="@string/clear_all"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/button2" />
 
     </RelativeLayout>
 

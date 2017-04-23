@@ -83,7 +83,6 @@ class DatabaseHandler extends SQLiteOpenHelper {
                 cursor.getString(1), cursor.getString(2));
 
         cursor.close();
-
         return downed;
     }
 
@@ -105,7 +104,6 @@ class DatabaseHandler extends SQLiteOpenHelper {
                 downedList.add(downed);
             } while (cursor.moveToNext());
         }
-
         cursor.close();
         // return downed list
         return downedList;
@@ -115,7 +113,6 @@ class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_DOWNED, null, null);
     }
-
 
     // Getting contacts Count
     int getDownedCount() {
@@ -128,5 +125,4 @@ class DatabaseHandler extends SQLiteOpenHelper {
         // return count
         return count;
     }
-
 }
