@@ -18,10 +18,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class ImageSiphon {
+class ImageSiphon {
 
     //Downloads a Bitmap from a URL, and returns a thumbnail
-    public static Bitmap retrieveImage(URL newURL) throws IOException {
+    private static Bitmap retrieveImage(URL newURL) throws IOException {
         Bitmap image;
         Bitmap thumb;
         HttpURLConnection urlConnection = (HttpURLConnection) newURL.openConnection();
@@ -44,7 +44,7 @@ public class ImageSiphon {
     }
 
     // Test the link, good URLs get turned into ImageViews, Bad links return an error TextView
-    public static View viewCreator(MainActivity.Wrapper w) throws IOException {
+    static View viewCreator(MainActivity.Wrapper w) throws IOException {
         Context context = w.getContext();
         URL url = new URL(w.getString());
         View view;
@@ -83,15 +83,13 @@ public class ImageSiphon {
     //Method to run if URL fails tests
     private static View badURL(Context context) {
         Log.d("MESSAGE", "bad URL: ");
-        View txtView = createErrorTextView(context);
 
-        return txtView;
+        return createErrorTextView(context);
     }
 
     //Good links get downloaded, a thumbnail generated, saved, and assigned to an ImageDL object
     private static View goodURL(URL url, Context context)
             throws IOException {
-        Downed downed = new Downed();
         DatabaseHandler db = new DatabaseHandler(context);
         Bitmap newImage;
         Log.d("MESSAGE", "good URL: ");
@@ -102,8 +100,7 @@ public class ImageSiphon {
         View imgView = createImageViewFromFile(newThumbFile, context);
 
         if(newThumbFile != null) {
-            downed.setThumbnail(newThumbFile.toString());
-            downed.setURL(url.toString());
+            Downed downed = new Downed(url.toString(), newThumbFile.toString());
             db.addDowned(downed);
         }
         return imgView;
@@ -115,14 +112,13 @@ public class ImageSiphon {
         }
         return bitmap;
     }
-    public static int getSquareCropDimensionForBitmap(Bitmap bitmap)
-    {
+    /*public static int getSquareCropDimensionForBitmap(Bitmap bitmap) {
         //use the smallest dimension of the image to crop to
         return Math.min(bitmap.getWidth(), bitmap.getHeight());
-    }
+    }*/
 
     //Create and return TextView with error text
-    public static View createErrorTextView(Context context) {
+     static View createErrorTextView(Context context) {
         TextView newTxtView = new TextView(context);
         newTxtView.setText(R.string.error_text);
         newTxtView.setPadding(5, 5, 5, 5);
@@ -130,7 +126,7 @@ public class ImageSiphon {
     }
 
     //create and return an ImageView from a File
-    public static View createImageViewFromFile(File image, Context context) {
+    private static View createImageViewFromFile(File image, Context context) {
         Uri uri = Uri.fromFile(image);
         ImageView newImgView = new ImageView(context);
         newImgView.setImageURI(uri);
@@ -139,7 +135,7 @@ public class ImageSiphon {
     }
 
     //Create and return an ImageView from a URI
-    public static View createImageViewFromURI(Uri uri, Context context) {
+    static View createImageViewFromURI(Uri uri, Context context) {
         ImageView newImgView = new ImageView(context);
         newImgView.setImageURI(uri);
         newImgView.setPadding(5, 5, 5, 5);

@@ -19,9 +19,9 @@ import java.util.UUID;
 
 import static android.content.ContentValues.TAG;
 
-public class FileSiphon {
+class FileSiphon {
     //converts an thumbnail bitmap into a thumbnail File
-    public static void saveThumbToFile(Bitmap image, File pictureFile) {
+    static void saveThumbToFile(Bitmap image, File pictureFile) {
         if (pictureFile == null) {
             Log.d(TAG, "Error creating media file, check storage permissions: ");
             return;
@@ -38,7 +38,7 @@ public class FileSiphon {
     }
 
     /** Create a File for saving an image or video */
-    public static File getOutputMediaFile(Context context){
+    static File getOutputMediaFile(Context context){
         Log.d("MESSAGE", "reached output media file");
         File mediaStorageDir = new File(context.getFilesDir().getPath() + "/THUMBS/");
         Log.d("MESSAGE", "saved storage dir");
@@ -60,14 +60,13 @@ public class FileSiphon {
     }
 
     /** Reads in strings from a text file*/
-    public static String[] readFileToStringArray(Context context) throws IOException {
+    static String[] readFileToStringArray(Context context) throws IOException {
         String[] urlArray = new String[4];
-        BufferedReader br = new BufferedReader
-                (new InputStreamReader(context.getAssets().open("links.txt")));
-        try {
+        try (BufferedReader br = new BufferedReader
+                (new InputStreamReader(context.getAssets().open("links.txt")))) {
             String mLine = br.readLine();
             while (mLine != null) {
-                for(int i=0;i<4;i++) {
+                for (int i = 0; i < 4; i++) {
                     urlArray[i] = mLine;
                     mLine = br.readLine();
                 }
@@ -75,8 +74,6 @@ public class FileSiphon {
         } catch (IOException e) {
             Log.d("MESSAGE", e.toString());
             Toast.makeText(context, "Could not open file", Toast.LENGTH_SHORT).show();
-        } finally {
-            br.close();
         }
         return urlArray;
     }
