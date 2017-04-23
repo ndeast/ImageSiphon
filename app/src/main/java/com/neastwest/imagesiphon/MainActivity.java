@@ -1,7 +1,6 @@
 package com.neastwest.imagesiphon;
 
 import android.content.Context;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -30,12 +29,11 @@ public class MainActivity extends AppCompatActivity {
     protected EditText urlTextBox;
     protected ProgressBar progBar;
     protected String[] images;
-    List<Downed> downedList = new ArrayList<Downed>();
-    int totalLinks = 0;
-    int completedImages = 0;
-    DatabaseHandler db = new DatabaseHandler(this);
+    private List<Downed> downedList = new ArrayList<>();
+    private int totalLinks = 0;
+    private int completedImages = 0;
+    private DatabaseHandler db = new DatabaseHandler(this);
     private View view;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
         //Progress bar settings
         progBar = (ProgressBar)findViewById(R.id.progressBar3);
         progBar.setMax(100);
-
-        //downedList = db.getAllDowned();
 
     }
 
@@ -94,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     private class FileReader extends AsyncTask <String[], Void, String[]> {
 
         protected String[] doInBackground(String[]... StringArray) {
@@ -113,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
             startDownloading(images);
         }
     }
-
 
     //AsyncTask to check a URL and return a View.
     private class ImageDownloader extends AsyncTask <Wrapper, Void, View> {
