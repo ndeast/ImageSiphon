@@ -1,5 +1,3 @@
-// dbBranch
-
 package com.neastwest.imagesiphon;
 
 import android.content.Context;
