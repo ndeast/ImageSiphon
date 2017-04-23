@@ -106,16 +106,12 @@ class ImageSiphon {
         return imgView;
     }
     private static Bitmap createThumb(Bitmap image) {
-        Bitmap bitmap = ThumbnailUtils.extractThumbnail(image, 750, 750);
+        Bitmap bitmap = ThumbnailUtils.extractThumbnail(image, 1500, 1500);
         if(image != null) {
             image.recycle();
         }
         return bitmap;
     }
-    /*public static int getSquareCropDimensionForBitmap(Bitmap bitmap) {
-        //use the smallest dimension of the image to crop to
-        return Math.min(bitmap.getWidth(), bitmap.getHeight());
-    }*/
 
     //Create and return TextView with error text
      static View createErrorTextView(Context context) {
@@ -130,6 +126,7 @@ class ImageSiphon {
         Uri uri = Uri.fromFile(image);
         ImageView newImgView = new ImageView(context);
         newImgView.setImageURI(uri);
+        newImgView.setAdjustViewBounds(true);
         newImgView.setPadding(5, 5, 5, 5);
         return newImgView;
     }
@@ -138,6 +135,7 @@ class ImageSiphon {
     static View createImageViewFromURI(Uri uri, Context context) {
         ImageView newImgView = new ImageView(context);
         newImgView.setImageURI(uri);
+        newImgView.setAdjustViewBounds(true);
         newImgView.setPadding(5, 5, 5, 5);
         return newImgView;
     }

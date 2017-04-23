@@ -69,7 +69,9 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="9dp"
+        android:adjustViewBounds="true"
         android:fillViewport="true"
+        android:overScrollMode="never"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="300dp">
 
@@ -77,6 +79,7 @@
             android:id="@+id/results_region"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:adjustViewBounds="true"
             android:orientation="horizontal">
 
         </LinearLayout>
